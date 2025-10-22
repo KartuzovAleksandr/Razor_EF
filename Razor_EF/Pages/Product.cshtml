@@ -1,0 +1,84 @@
+﻿@page
+@model Razor_EF.Pages.ProductModel
+@{
+    ViewData["Title"] = "Товары";
+}
+
+<div class="container mt-4">
+    <h2>Товары</h2>
+
+    <!-- Форма создания нового товара -->
+    <form method="post" asp-page-handler="Create" class="row g-3 mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label asp-for="Product.Name" class="form-label"></label>
+                <input asp-for="Product.Name" class="form-control" placeholder="Название товара" />
+                <span asp-validation-for="Product.Name" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Product.Price" class="form-label"></label>
+                <input asp-for="Product.Price" class="form-control" type="number" step="1" min="1" placeholder="1" />
+                <span asp-validation-for="Product.Price" class="text-danger"></span>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100">Добавить</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Список товаров -->
+    @if (Model.Products.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Products[0].Id)</th>
+                        <th>@Html.DisplayNameFor(m => m.Products[0].Name)</th>
+                        <th>@Html.DisplayNameFor(m => m.Products[0].Price)</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Products)
+                    {
+                        <tr>
+                            <td>@p.Id</td>
+                            <td>
+                                <form method="post" asp-page-handler="Edit" asp-route-id="@p.Id" class="d-flex align-items-center">
+                                    <input type="hidden" name="Product.Id" value="@p.Id" />
+                                    <input name="Product.Name" value="@p.Name" class="form-control form-control-sm me-2" style="width: 200px;" />
+                                    <input name="Product.Price" value="@p.Price" class="form-control form-control-sm me-2" type="number" step="1" min="0" style="width: 120px;" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Сохранить</button>
+                                </form>
+                            </td>
+                            <td>@p.Price.ToString("C", new System.Globalization.CultureInfo("ru-RU"))</td>
+                            <td>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@p.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Вы уверены, что хотите удалить товар «@p.Name»?')">
+                                        Удалить
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Нет товаров. Добавьте первый товар!
+        </div>
+    }
+
+    <a asp-page="/Index" class="btn btn-secondary mt-3">← Назад к выбору таблиц</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

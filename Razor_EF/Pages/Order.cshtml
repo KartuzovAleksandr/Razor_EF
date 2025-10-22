@@ -1,0 +1,88 @@
+﻿@page
+@model Razor_EF.Pages.OrderModel
+@{
+    ViewData["Title"] = "Заказы";
+}
+
+<div class="container mt-4">
+    <h2>Заказы</h2>
+
+    <form method="post" asp-page-handler="Create" class="row g-3 mb-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+
+        <div class="col-md-4">
+            <label asp-for="Order.ClientId" class="form-label"></label>
+            <select asp-for="Order.ClientId" asp-items="@(new SelectList(Model.Clients, "Id", "Name"))" class="form-select">
+                <option value="">-- Выберите --</option>
+            </select>
+            <span asp-validation-for="Order.ClientId" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Order.ProductId" class="form-label"></label>
+            <select asp-for="Order.ProductId" asp-items="@(new SelectList(Model.Products, "Id", "Name"))" class="form-select">
+                <option value="">-- Выберите --</option>
+            </select>
+            <span asp-validation-for="Order.ProductId" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Order.Quantity" class="form-label"></label>
+            <input asp-for="Order.Quantity" class="form-control" />
+            <span asp-validation-for="Order.Quantity" class="text-danger"></span>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">Добавить</button>
+        </div>
+    </form>
+
+    @if (Model.Orders.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Orders[0].Id)</th>
+                        <th>@Html.DisplayNameFor(m => m.Orders[0].Date)</th>
+                        <th>Клиент</th>
+                        <th>Товар</th>
+                        <th>@Html.DisplayNameFor(m => m.Orders[0].Quantity)</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Orders)
+                    {
+                        <tr>
+                            <td>@o.Id</td>
+                            <td>@o.Date.ToString("g")</td>
+                            <td>@(o.Client?.Name ?? "—")</td>
+                            <td>@(o.Product?.Name ?? "—")</td>
+                            <td>
+                                <form method="post" asp-page-handler="Edit" asp-route-id="@o.Id" class="d-flex align-items-center">
+                                    <input type="hidden" name="Order.Id" value="@o.Id" />
+                                    <input type="hidden" name="Order.ClientId" value="@o.ClientId" />
+                                    <input type="hidden" name="Order.ProductId" value="@o.ProductId" />
+                                    <input name="Order.Quantity" value="@o.Quantity" class="form-control form-control-sm me-2" style="width:80px;" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Сохранить</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@o.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Удалить заказ №@o.Id?')">
+                                        Удалить
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <a asp-page="/Index" class="btn btn-secondary mt-3">← Назад</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
