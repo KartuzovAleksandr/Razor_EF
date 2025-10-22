@@ -17,9 +17,12 @@ namespace Razor_EF.Models
             context.Clients.AddRange(clients);
 
             // Products
+            var Items = new List<string> { "iPhone 17", "IQOO 15", "Samsung S25", 
+                "Samsung A36", "Samsung S25 FE", "Redmi K90", "Realme P3", "Techo Spark 40",
+                "Infinix Hot 60"};
             var products = new Faker<Product>("ru")
-                .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-                .RuleFor(p => p.Price, f => f.Random.Decimal(10, 1000))
+                .RuleFor(p => p.Name, f => f.PickRandom(Items))
+                .RuleFor(p => p.Price, f => f.Random.Decimal(10000, 150000))
                 .Generate(10);
 
             context.Products.AddRange(products);
