@@ -61,7 +61,19 @@
                                     <input type="hidden" name="Order.Id" value="@o.Id" />
                                     <input type="hidden" name="Order.ClientId" value="@o.ClientId" />
                                     <input type="hidden" name="Order.ProductId" value="@o.ProductId" />
-                                    <input name="Order.Quantity" value="@o.Quantity" class="form-control form-control-sm me-2" style="width:80px;" />
+                                    <input name="Order.Quantity"
+                                           value="@o.Quantity"
+                                           class="form-control form-control-sm me-2"
+                                           style="width:80px;"
+                                           required
+                                           min="1"
+                                           max="9999"
+                                           data-val="true"
+                                           data-val-required="Укажите количество"
+                                           data-val-range="Количество должно быть от 1 до 9999"
+                                           data-val-range-min="1"
+                                           data-val-range-max="9999" />
+                                    @* <input name="Order.Quantity" value="@o.Quantity" class="form-control form-control-sm me-2" style="width:80px;" /> *@
                                     <button type="submit" class="btn btn-sm btn-warning">Сохранить</button>
                                 </form>
                             </td>
