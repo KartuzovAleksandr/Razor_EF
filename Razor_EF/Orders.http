@@ -1,0 +1,35 @@
+@host = https://localhost:7151
+@api = {{host}}/api/orders
+
+### Получить все заказы
+GET {{api}}
+Accept: application/json
+
+### Получить заказ по ID
+GET {{api}}/1
+Accept: application/json
+
+### Создать заказ
+POST {{api}}
+Content-Type: application/json
+
+{
+  "date": "2025-10-29T12:00:00Z",
+  "clientId": 1,
+  "productId": 1,
+  "quantity": 2
+}
+
+### Обновить заказ
+PUT {{api}}/1
+Content-Type: application/json
+
+{
+  "date": "2025-10-30T10:00:00Z",
+  "clientId": 1,
+  "productId": 2,
+  "quantity": 5
+}
+
+### Удалить заказ
+DELETE {{api}}/1

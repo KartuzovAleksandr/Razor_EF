@@ -1,9 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Swagger интерфейс https://localhost:7151/swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Настройка Serilog
 Log.Logger = new LoggerConfiguration()
@@ -24,6 +29,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+// включение Swagger в Development
+// https://localhost:7151/swagger
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Инициализация БД при старте
 //using (var scope = app.Services.CreateScope())
@@ -89,5 +102,8 @@ app.MapRazorPages();
 //    int c = a / b;
 //    await context.Response.WriteAsync($"c = {c}");
 //});
+
+// Подключаем REST API для Orders
+app.MapOrdersApi();
 
 app.Run();
