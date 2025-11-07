@@ -39,6 +39,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // »нициализаци€ Ѕƒ при старте
+// убрал в Razor Pages дл€ правильной обработки ошибки (отдельно дл€ Development и Production)
 //using (var scope = app.Services.CreateScope())
 //{
 //    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -51,14 +52,15 @@ if (app.Environment.IsDevelopment())
 //}
 
 // https://localhost:7151/Files/
-// даю каталог дл€ скачивани€
-app.UseFileServer(new FileServerOptions
-{
-    EnableDirectoryBrowsing = true,
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Files")),
-    RequestPath = new PathString("/Files"),
-    EnableDefaultFiles = false
-});
+// даем каталог дл€ скачивани€
+// не будет работать в Docker - потому что доступ к физическому каталогу
+//app.UseFileServer(new FileServerOptions
+//{
+//    EnableDirectoryBrowsing = true,
+//    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Files")),
+//    RequestPath = new PathString("/Files"),
+//    EnableDefaultFiles = false
+//});
 
 // мен€ем им€ окружени€
 // тогда увидим переадресацию на страницу Error

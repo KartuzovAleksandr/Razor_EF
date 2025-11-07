@@ -1,0 +1,12 @@
+services:
+  razor_ef:
+    image: ${DOCKER_REGISTRY-}razoref
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
