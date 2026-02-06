@@ -31,7 +31,7 @@ namespace Razor_EF.Models
 
             // Orders
             var orders = new Faker<Order>("ru")
-                .RuleFor(o => o.Date, f => f.Date.Past(1))
+                .RuleFor(o => o.Date, f => DateTime.Now.ToUniversalTime())
                 .RuleFor(o => o.ClientId, f => f.Random.Int(1, clients.Count))
                 .RuleFor(o => o.ProductId, f => f.Random.Int(1, products.Count))
                 .RuleFor(o => o.Quantity, f => f.Random.Int(1, 10))

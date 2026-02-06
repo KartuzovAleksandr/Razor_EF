@@ -21,9 +21,30 @@ Log.Logger = new LoggerConfiguration()
 // Используем Serilog как основной провайдер логов
 builder.Host.UseSerilog(); // <-- это подключает Serilog к ILogger<T>
 
-// Добавление DbContext
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// получаем строку подключения из файла конфигурации
+// string? connection = builder.Configuration.GetConnectionString("MsDocker");
+string? con1 = builder.Configuration.GetConnectionString("SqlExpress");
+string? con2 = builder.Configuration.GetConnectionString("SQLite");
+string? con3 = builder.Configuration.GetConnectionString("Postgres");
+
+string? Db = "Postgres";
+
+// добавляем контекст ApplicationContext в качестве сервиса в приложение
+switch (Db)
+{
+    case "Postgres":
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(con3));
+        break;
+    case "SQLite":
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
+        break;
+    case "SqlExpress":
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con3));
+        break;
+    default:
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
+        break;
+}
 
 // Add services to the container.
 builder.Services.AddRazorPages();
