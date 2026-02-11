@@ -57,14 +57,58 @@
                                 </form>
                             </td>
                             <td>@c.Email</td>
-                            <td>
+                            @* <td>
                                 <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-danger"
                                             onclick="return confirm('Удалить клиента @c.Name?')">
                                         Удалить
                                     </button>
                                 </form>
+                            </td> *@
+                            <td>
+                                <!-- Кнопка удаления -->
+                                <button class="btn btn-sm btn-danger" type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal_@c.Id">
+
+                                    Удалить
+                                </button>
+ 
+                                <!-- Модальное окно по центру экрана -->
+                                <div class="modal fade" id="deleteModal_@c.Id" tabindex="-1"
+                                     aria-labelledby="deleteModalLabel_@c.Id" aria-hidden="true"
+                                     data-bs-backdrop="static">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <!-- modal-dialog-centered для центрирования -->
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel_@c.Id">
+
+                                                    Подтверждение удаления
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Вы уверены, что хотите удалить клиента <strong>@c.Name</strong>?</p>
+                                                <p class="text-muted small">Email: @c.Name</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id">
+                                                    <button type="submit" class="btn btn-danger">
+
+                                                        Да, удалить
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                                                        Отмена
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
+ 
                         </tr>
                     }
                 </tbody>

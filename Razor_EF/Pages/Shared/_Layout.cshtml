@@ -40,6 +40,10 @@
         <div class="container">
             &copy; 2025 - Razor_EF - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
+        @* <geolocation autolocate onlocation="
+        const {latitude: lat, longitude: lon} = event.target.position.coords;
+        document.getElementById('out').innerText = `Широта ${lat.toFixed(2)} Долгота ${lon.toFixed(2)}`;
+        "></geolocation> *@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
