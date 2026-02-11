@@ -1,3 +1,12 @@
+@* Установка aspnet-codegenerator
+в Powershell
+dotnet tool install --global dotnet-aspnet-codegenerator --version 8.0.5 
+Затем переходим в проект cd Razor_EF и запускаем
+dotnet aspnet-codegenerator razorpage -m Razor_EF.Models.Client -dc Razor_EF.Models.ApplicationDbContext -udl -outDir Pages/Clients --referenceScriptLibraries
+будут созданы страницы Create, Delete, Details, Edit, Index в каталоге Pages/Clients
+для других таблиц аналогично
+*@
+
 @page
 @model Razor_EF.Pages_Clients.IndexModel
 
