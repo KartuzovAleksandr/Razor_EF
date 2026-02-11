@@ -32,7 +32,7 @@ namespace Razor_EF.Pages
             if (ModelState.IsValid)
             {
                 // для PostgreSQL
-                Order.Date = DateTime.Now.ToUniversalTime();
+                Order.Date = DateTime.UtcNow;
                 _context.Orders.Add(Order);
                 _context.SaveChanges();
                 return RedirectToPage();
