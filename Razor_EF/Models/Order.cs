@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Razor_EF.Models
 {
@@ -7,6 +8,8 @@ namespace Razor_EF.Models
         public int Id { get; set; }
 
         [Display(Name = "Дата")]
+        // для PostgreSQL
+        [Column(TypeName = "timestamp with time zone")]
         public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Клиент обязателен")]
