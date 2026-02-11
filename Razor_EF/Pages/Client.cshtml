@@ -33,6 +33,10 @@
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-light">
                     <tr>
+                        @* то же самое с Tag-helper *@
+                        @* <th><label asp-for="Clients[0].Id"></label></th>
+                        <th><label asp-for="Clients[0].Name"></label></th>
+                        <th><label asp-for="Clients[0].Email"></label></th> *@
                         <th>@Html.DisplayNameFor(m => m.Clients[0].Id)</th>
                         <th>@Html.DisplayNameFor(m => m.Clients[0].Name)</th>
                         <th>@Html.DisplayNameFor(m => m.Clients[0].Email)</th>

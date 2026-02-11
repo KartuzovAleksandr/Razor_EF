@@ -27,7 +27,7 @@ string? con1 = builder.Configuration.GetConnectionString("SqlExpress");
 string? con2 = builder.Configuration.GetConnectionString("SQLite");
 string? con3 = builder.Configuration.GetConnectionString("Postgres");
 
-string? Db = "SQLite";
+string? Db = "Postgres";
 
 // добавляем контекст ApplicationContext в качестве сервиса в приложение
 switch (Db)
