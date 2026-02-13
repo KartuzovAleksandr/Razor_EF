@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Diagnostics;
 using Microsoft.Data.SqlClient; // Подключите пространство имён для SqlException
+using System.Diagnostics;
+using System.Net.Sockets;
 
 public class ErrorModel : PageModel
 {
@@ -32,6 +33,7 @@ public class ErrorModel : PageModel
             // Генерация краткого сообщения пользователю
             ShortErrorInfo = ex switch
             {
+                SocketException socketEx => GetFriendlySockMessage(socketEx),
                 SqlException sqlEx => GetFriendlySqlMessage(sqlEx),
                 FileNotFoundException => "Не найден запрошенный файл.",
                 InvalidOperationException => "Некорректная операция.",
@@ -50,5 +52,17 @@ public class ErrorModel : PageModel
             18456 => "Ошибка авторизации в SQL Server.",
             _ => "Ошибка при работе с базой данных."
         };
+    }
+
+    private string GetFriendlySockMessage(SocketException socketEx)
+    {
+        // Можно кастомизировать сообщение в зависимости от кода ошибки
+        return socketEx.ErrorCode switch
+        {
+            10061 => "Подключение не установлено, т.к.конечный компьютер отверг запрос на подключение",
+            _ => "Ошибка при работе с сетевым сокетом."
+        };
+
+        // return socketEx.Message;
     }
 }

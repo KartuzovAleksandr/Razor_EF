@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
@@ -115,7 +114,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 // добавить стандартный обработчик ошибок ASP.net Core
-// app.UseDeveloperExceptionPage();
+//app.UseDeveloperExceptionPage();
 
 // проверка стандартного обработчика
 //app.Run(async (context) =>
