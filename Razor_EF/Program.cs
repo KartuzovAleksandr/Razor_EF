@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,8 +92,26 @@ if (app.Environment.IsDevelopment())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    app.UseStatusCodePagesWithReExecute("/Error");
+    // для обработки ошибок HTTP
+    app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
     app.UseHsts();
+
+    // реальная защита от DDOS - не заработала
+    //builder.Services.AddRateLimiter(options =>
+    //{
+    //    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    //        RateLimitPartition.GetFixedWindowLimiter(
+    //            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+    //            factory: partition => new FixedWindowRateLimiterOptions
+    //            {
+    //                AutoReplenishment = true,
+    //                PermitLimit = 10,  // 10 запросов за окно
+    //                Window = TimeSpan.FromMinutes(1)
+    //            }));
+    //});
+
+    //// ДО MapRazorPages() - защита от DDOS
+    //app.UseRateLimiter();
 }
 else
 {

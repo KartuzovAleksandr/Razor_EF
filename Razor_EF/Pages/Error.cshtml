@@ -4,12 +4,12 @@
     ViewData["Title"] = "Ошибка";
 }
 
-<h1 class="text-danger">При выполнении запроса возникла ошибка</h1>
-<h2 class="text-danger">Сервер временно недоступен</h2>
+<h3 class="text-danger">При выполнении запроса возникла ошибка</h3>
+<h3 class="text-danger">Сервер временно недоступен</h3>
 
 @if (!string.IsNullOrEmpty(Model.ShortErrorInfo))
 {
-    <p class="text-muted" style="font-size: small;">
+    <p class="text-muted" style="font-size: medium;">
         @Model.ShortErrorInfo
     </p>
 }

@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Data.SqlClient; // Подключите пространство имён для SqlException
+// для обработки ошибок SQL Server
+using Microsoft.Data.SqlClient; 
 using System.Diagnostics;
 using System.Net.Sockets;
+// для обработки статус-кодов HHTP
+using Microsoft.AspNetCore.Http.Features; 
 
 public class ErrorModel : PageModel
 {
     private readonly ILogger<ErrorModel> _logger;
+
+    public int? StatusCode { get; private set; }
 
     public ErrorModel(ILogger<ErrorModel> logger)
     {
@@ -40,6 +45,23 @@ public class ErrorModel : PageModel
                 _ => "Неизвестная ошибка."
             };
         }
+
+        // Новая обработка статус-кодов (404 и др.)
+        var statusCodeFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+        if (statusCodeFeature != null)
+        {
+            StatusCode = int.Parse(HttpContext.Request.Query["statusCode"]);
+            _logger.LogWarning("Статус-код {StatusCode} для пути {OriginalPath}", StatusCode, statusCodeFeature.OriginalPath);
+
+            ShortErrorInfo = StatusCode switch
+            {
+                404 => "Запрошенная страница не найдена !",
+                403 => "Доступ запрещён !",
+                429 => "Слишком много запросов. Попробуйте позже !",
+                500 => "Внутренняя ошибка сервера !",
+                _ => $"Ошибка HTTP {StatusCode}."
+            };
+        }
     }
 
     private string GetFriendlySqlMessage(SqlException sqlEx)
@@ -60,9 +82,7 @@ public class ErrorModel : PageModel
         return socketEx.ErrorCode switch
         {
             10061 => "Подключение не установлено, т.к.конечный компьютер отверг запрос на подключение",
-            _ => "Ошибка при работе с сетевым сокетом."
+            _ => $"Ошибка {socketEx.Message} при работе с сетевым сокетом."
         };
-
-        // return socketEx.Message;
     }
 }
