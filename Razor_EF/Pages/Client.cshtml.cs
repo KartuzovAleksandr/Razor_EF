@@ -7,10 +7,12 @@ namespace Razor_EF.Pages
     public class ClientModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<ClientModel> _logger;
 
-        public ClientModel(ApplicationDbContext context)
+        public ClientModel(ApplicationDbContext context, ILogger<ClientModel> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IList<Client> Clients { get; set; } = new List<Client>();
@@ -29,6 +31,7 @@ namespace Razor_EF.Pages
             {
                 _context.Clients.Add(Client);
                 _context.SaveChanges();
+                _logger.LogInformation($"{Client.ToString()} добавлен !");
                 return RedirectToPage();
             }
             Clients = _context.Clients.ToList();
@@ -51,6 +54,7 @@ namespace Razor_EF.Pages
             var client = _context.Clients.Find(id);
             if (client != null)
             {
+                _logger.LogInformation($"{client.ToString()} удален !");
                 _context.Clients.Remove(client);
                 _context.SaveChanges();
             }

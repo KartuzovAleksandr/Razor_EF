@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.VisualStudio.TextTemplating;
+using System.ComponentModel.DataAnnotations;
 
 namespace Razor_EF.Models
 {
@@ -15,5 +16,10 @@ namespace Razor_EF.Models
         [EmailAddress(ErrorMessage = "Неверный формат email")]
         [Display(Name = "Email")]
         public string Email { get; set; } = string.Empty;
+
+        public override String ToString()
+        {
+            return $"Имя: {Name} Email: {Email}";
+        }
     }
 }
