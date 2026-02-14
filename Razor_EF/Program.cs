@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
@@ -73,7 +74,7 @@ if (app.Environment.IsDevelopment())
 //}
 
 // https://localhost:7151/Files/
-// даем каталог для скачивания
+// даем каталог для скачивания / просмотра
 // не будет работать в Docker - потому что доступ к физическому каталогу
 //app.UseFileServer(new FileServerOptions
 //{
@@ -120,11 +121,16 @@ else
 
 app.UseHttpsRedirection();
 
-// app.UseDirectoryBrowser(); // просмотр содержимое каталогов на сайте
+// просмотр содержимое каталогов на сайте - которые укажем сами выше
+// в app.UseFileServer
+// app.UseDirectoryBrowser(); 
 
-// app.UseDefaultFiles(); // переадресация на wwwroot
+// переадресация на wwwroot
+// не использовать вместе с UseDirectoryBrower работать не будет
+// app.UseDefaultFiles(); 
 
-app.UseStaticFiles(); // можно открывать полные адреса из wwwroot
+// можно открывать файлы из wwwroot без указания полного пути
+// app.UseStaticFiles(); 
 
 app.UseRouting();
 
