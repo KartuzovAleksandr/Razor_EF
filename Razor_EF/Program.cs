@@ -28,7 +28,7 @@ string? con1 = builder.Configuration.GetConnectionString("SqlExpress");
 string? con2 = builder.Configuration.GetConnectionString("SQLite");
 string? con3 = builder.Configuration.GetConnectionString("Postgres");
 
-string? Db = "Postgres";
+string? Db = "SQLite";
 
 // добавляем контекст ApplicationContext в качестве сервиса в приложение
 switch (Db)
@@ -40,7 +40,7 @@ switch (Db)
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
         break;
     case "SqlExpress":
-        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con3));
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con1));
         break;
     default:
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
@@ -130,7 +130,7 @@ app.UseHttpsRedirection();
 // app.UseDefaultFiles(); 
 
 // можно открывать файлы из wwwroot без указания полного пути
-// app.UseStaticFiles(); 
+app.UseStaticFiles(); 
 
 app.UseRouting();
 

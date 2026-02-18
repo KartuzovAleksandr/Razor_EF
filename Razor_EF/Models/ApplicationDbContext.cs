@@ -12,6 +12,7 @@ namespace Razor_EF.Models
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<User> Users => Set<User>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

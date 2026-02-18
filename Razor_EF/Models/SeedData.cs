@@ -41,6 +41,14 @@ namespace Razor_EF.Models
 
             context.Orders.AddRange(orders);
             context.SaveChanges();
+
+            var users = new List<User>
+            { new() { UserName = "admin", Password = "Passw0rd", Role = Roles.Admin },
+              new() { UserName = "manager", Password = "12345", Role = Roles.Manager },
+              new() { UserName = "guest", Password = "guest", Role = Roles.User }
+            };
+            context.Users.AddRange(users);
+            context.SaveChanges();
         }
     }
 }

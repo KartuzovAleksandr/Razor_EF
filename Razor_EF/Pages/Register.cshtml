@@ -1,0 +1,28 @@
+﻿@page
+@model Razor_EF.Pages.RegisterModel
+@{
+	ViewData["Title"] = "Регистрация";
+}
+
+<div class="container mt-4">
+    <h2>Регистрация</h2>
+
+    <!-- Форма регистрации -->
+    <form method="post" asp-page-handler="Create" class="mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label asp-for="User.UserName" class="form-label"></label>
+                <input asp-for="User.UserName" class="form-control" placeholder="Логин" />
+                <span asp-validation-for="User.UserName" class="text-danger"></span>
+            </div>
+            <div class="col-md-5">
+                <label asp-for="User.Password" class="form-label"></label>
+                <input asp-for="User.Password" class="form-control" placeholder="" />
+                <span asp-validation-for="User.Password" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">@ViewData["Title"]</button>
+            </div>
+        </div>
+    </form>
+</div>
