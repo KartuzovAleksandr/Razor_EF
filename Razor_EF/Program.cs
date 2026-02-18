@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
@@ -46,6 +49,29 @@ switch (Db)
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
         break;
 }
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            //// указывает, будет ли валидироваться издатель при валидации токена
+            //ValidateIssuer = true,
+            //// строка, представляющая издателя
+            //ValidIssuer = AuthOptions.ISSUER,
+            //// будет ли валидироваться потребитель токена
+            //ValidateAudience = true,
+            //// установка потребителя токена
+            //ValidAudience = AuthOptions.AUDIENCE,
+            //// будет ли валидироваться время существования
+            //ValidateLifetime = true,
+            //// установка ключа безопасности
+            //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+            //// валидация ключа безопасности
+            //ValidateIssuerSigningKey = true,
+        };
+    });
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -134,6 +160,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

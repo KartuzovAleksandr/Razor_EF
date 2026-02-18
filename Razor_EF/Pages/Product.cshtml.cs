@@ -1,10 +1,12 @@
 // Аналогично ClientModel, но с Product
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Razor_EF.Models;
 
 namespace Razor_EF.Pages
 {
+    [Authorize]
     public class ProductModel : PageModel
     {
         private readonly ApplicationDbContext _context;
