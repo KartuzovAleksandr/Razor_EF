@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Bogus.DataSets;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.ComponentModel.DataAnnotations;
 
 namespace Razor_EF.Models
 {
@@ -26,5 +28,9 @@ namespace Razor_EF.Models
         [Display(Name = "Роль")]
         public Roles Role { get; set; } = Roles.User;
 
+        public override String ToString()
+        {
+            return $"Имя: {UserName} Role: {Role}";
+        }
     }
 }
