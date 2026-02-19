@@ -23,6 +23,8 @@ namespace Razor_EF.Models
         [Display(Name = "Пароль")]
         [Required(ErrorMessage = "Пароль обязателен")]
         [StringLength(10, MinimumLength = 1, ErrorMessage = "Пароль должен быть от 1 до 10 символов")]
+        // автоматически рендерится как <input type="password"> c tag-helpers
+        [DataType(DataType.Password)]
         public String Password { get; set; } = String.Empty;
 
         [Display(Name = "Роль")]

@@ -5,24 +5,40 @@
 }
 
 <div class="container mt-4">
-    <h2>Регистрация</h2>
-
-    <!-- Форма регистрации -->
-    <form method="post" asp-page-handler="Create" class="mb-4">
-        <div class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <label asp-for="User.UserName" class="form-label"></label>
-                <input asp-for="User.UserName" class="form-control" placeholder="Логин" />
-                <span asp-validation-for="User.UserName" class="text-danger"></span>
-            </div>
-            <div class="col-md-5">
-                <label asp-for="User.Password" class="form-label"></label>
-                <input asp-for="User.Password" class="form-control" placeholder="" />
-                <span asp-validation-for="User.Password" class="text-danger"></span>
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-success w-100">@ViewData["Title"]</button>
-            </div>
+    <h2>Регистрация нового пользователя</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Форма регистрации -->
+            <form method="post" asp-page-handler="Create">
+                @* общие ошибки валидации вверх *@
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                <div class="mb-3">
+                    <label asp-for="User.UserName" class="form-label"></label>
+                    <input asp-for="User.UserName" class="form-control" placeholder="Логин" />
+                    <span asp-validation-for="User.UserName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="User.Password" class="form-label"></label>
+                    <input asp-for="User.Password" class="form-control" placeholder="" />
+                    <span asp-validation-for="User.Password" class="text-danger"></span>
+                </div>
+                @* выбор роли - надо бы разрешить только админу *@
+                <div class="mb-3">
+                    <label asp-for="User.Role" class="form-label"></label>
+                    <select asp-for="User.Role" asp-items="Html.GetEnumSelectList<Models.Roles>()" class="form-select">
+                        <option value"">-- Выберите роль --</option>
+                    </select>
+                    <span asp-validation-for="User.UserName" class="text-danger"></span>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">@ViewData["Title"]</button>
+                </div>
+                <div class="mt-3">
+                    <a asp-page="/Login" class="btn btn-link align-center">
+                        Уже есть аккаунт ? Войти
+                    </a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
