@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TextTemplating;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Razor_EF.Models
 {

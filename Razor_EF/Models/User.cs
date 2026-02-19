@@ -1,6 +1,4 @@
-﻿using Bogus.DataSets;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Razor_EF.Models
 {
@@ -32,7 +30,7 @@ namespace Razor_EF.Models
 
         public override String ToString()
         {
-            return $"Имя: {UserName} Role: {Role}";
+            return $"Имя: {UserName} Роль: {Role}";
         }
     }
 }
