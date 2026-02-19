@@ -5,14 +5,85 @@
 }
 
 <div class="container mt-4">
-    <h2>Выберите таблицу</h2>
-    <ul class="list-group">
-        <li class="list-group-item"><a asp-page="/Client">Клиенты</a></li>
-        <li class="list-group-item"><a asp-page="/Clients/Index">Клиенты (полный CRUD)</a></li>
-        <li class="list-group-item"><a asp-page="/Product">Товары</a></li>
-        <li class="list-group-item"><a asp-page="/Products/Index">Товары (полный CRUD)</a></li>
-        <li class="list-group-item"><a asp-page="/Order">Заказы</a></li>
-    </ul>
-</div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Hero Header -->
+            <div class="card border-0 shadow-lg mb-4">
+                <div class="card-header bg-gradient text-white text-center py-3">
+                    <h1 class="h3 fw-bold mb-1">
+                        <i class="bi bi-database me-2"></i>Выберите таблицу
+                    </h1>
+                    <p class="mb-0 small opacity-90">Управление данными через CRUD операции</p>
+                </div>
+            </div>
 
-<a href="/Files">Файлы для скачивания</a>
+            <!-- Navigation Cards -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-3">
+                            <a asp-page="/Client" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow-sm hover-card">
+                                    <div class="card-body text-center py-4">
+                                        <i class="bi bi-people-fill display-4 text-primary mb-3"></i>
+                                        <h5 class="card-title fw-bold">Клиенты</h5>
+                                        <p class="card-text text-muted small">Простой просмотр</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <a asp-page="/Clients/Index" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow-sm hover-card">
+                                    <div class="card-body text-center py-4">
+                                        <i class="bi bi-person-lines-fill display-4 text-success mb-3"></i>
+                                        <h5 class="card-title fw-bold">Клиенты (полный CRUD)</h5>
+                                        <p class="card-text text-muted small">Все операции</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <a asp-page="/Product" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow-sm hover-card">
+                                    <div class="card-body text-center py-4">
+                                        <i class="bi bi-box-seam-fill display-4 text-info mb-3"></i>
+                                        <h5 class="card-title fw-bold">Товары</h5>
+                                        <p class="card-text text-muted small">Простой просмотр</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <a asp-page="/Products/Index" class="text-decoration-none">
+                                <div class="card h-100 border-0 shadow-sm hover-card">
+                                    <div class="card-body text-center py-4">
+                                        <i class="bi bi-cart-fill display-4 text-warning mb-3"></i>
+                                        <h5 class="card-title fw-bold">Товары (полный CRUD)</h5>
+                                        <p class="card-text text-muted small">Все операции</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Заказы -->
+                        <div class="col-12 mt-3">
+                            <a asp-page="/Order"
+                                   class="btn btn-outline-success w-100 d-inline-flex align-items-center justify-content-center py-2">
+                                <i class="bi bi-file-earmark-text-fill me-2"></i>
+                                <span>Заказы</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Файлы -->
+            <div class="text-center mt-3">
+                <a href="/Files" class="link-secondary text-decoration-none small">
+                    <i class="bi bi-download me-1"></i>Файлы для скачивания
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

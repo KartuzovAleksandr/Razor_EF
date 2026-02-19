@@ -20,3 +20,21 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* для главной страницы карточки */
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hover-card {
+    transition: all 0.3s ease;
+}
+
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+
+.bi {
+    font-size: 2rem;
+}
