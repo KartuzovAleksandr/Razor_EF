@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Razor_EF.Models
 {
@@ -20,9 +21,11 @@ namespace Razor_EF.Models
 
         [Display(Name = "Пароль")]
         [Required(ErrorMessage = "Пароль обязателен")]
-        [StringLength(10, MinimumLength = 1, ErrorMessage = "Пароль должен быть от 1 до 10 символов")]
+        [StringLength(60, MinimumLength = 1, ErrorMessage = "Пароль должен быть от 1 до 10 символов")]
         // автоматически рендерится как <input type="password"> c tag-helpers
         [DataType(DataType.Password)]
+        // ВАЖНО: Для базы данных выделяем 60 символов под хэш
+        // [Column(TypeName = "text")]
         public String Password { get; set; } = String.Empty;
 
         [Display(Name = "Роль")]

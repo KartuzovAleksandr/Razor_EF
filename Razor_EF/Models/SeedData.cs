@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using BC = BCrypt.Net.BCrypt;
 
 namespace Razor_EF.Models
 {
@@ -43,9 +44,15 @@ namespace Razor_EF.Models
             context.SaveChanges();
 
             var users = new List<User>
-            { new() { UserName = "admin", Password = "Passw0rd", Role = Roles.Admin },
-              new() { UserName = "manager", Password = "12345", Role = Roles.Manager },
-              new() { UserName = "guest", Password = "guest", Role = Roles.User }
+            { new() { UserName = "admin", 
+                Password =  BC.HashPassword("Passw0rd"), // шифрую (хэширую) пароль
+                Role = Roles.Admin },
+              new() { UserName = "manager",
+                  Password =  BC.HashPassword("12345"), // шифрую (хэширую) пароль
+                  Role = Roles.Manager },
+              new() { UserName = "guest",
+                  Password =  BC.HashPassword("guest"), // шифрую (хэширую) пароль
+                  Role = Roles.User }
             };
             context.Users.AddRange(users);
             context.SaveChanges();

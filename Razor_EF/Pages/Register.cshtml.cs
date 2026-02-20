@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Razor_EF.Models;
+using BC = BCrypt.Net.BCrypt;
 
 namespace Razor_EF.Pages
 {
     public class RegisterModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<ClientModel> _logger;
+        private readonly ILogger<RegisterModel> _logger;
 
         [BindProperty]
         public User User { get; set; } = new();
 
-        public RegisterModel(ApplicationDbContext context, ILogger<ClientModel> logger)
+        public RegisterModel(ApplicationDbContext context, ILogger<RegisterModel> logger)
         {
             _context = context;
             _logger = logger;
@@ -31,6 +32,8 @@ namespace Razor_EF.Pages
             
             if (!_context.Users.Any(u => u.UserName == User.UserName))
             {
+                // шифрую (хэширую) пароль
+                User.Password = BC.HashPassword(User.Password);
                 _context.Users.Add(User);
                 _context.SaveChanges();
                 _logger.LogInformation($"{User.ToString()} зарегистрирован !");

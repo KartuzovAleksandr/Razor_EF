@@ -2,18 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Razor_EF.Models;
+using BC = BCrypt.Net.BCrypt;
 
 namespace Razor_EF.Pages
 {
     public class LoginModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<ClientModel> _logger;
+        private readonly ILogger<LoginModel> _logger;
 
         [BindProperty]
         public User User { get; set; } = new();
 
-        public LoginModel(ApplicationDbContext context, ILogger<ClientModel> logger)
+        public LoginModel(ApplicationDbContext context, ILogger<LoginModel> logger)
         {
             _context = context;
             _logger = logger;
@@ -41,7 +42,9 @@ namespace Razor_EF.Pages
             else
             {
                 // проверка введенного пароля
-                if (user.Password != User.Password)
+                // user.Password - hash, User.Password - ввел пользователь
+                if (!BC.Verify(User.Password, user.Password))
+                // if (user.Password != User.Password)
                 {
                     ModelState.AddModelError("User.UserName", "Пароль не верен !");
                     return Page();
