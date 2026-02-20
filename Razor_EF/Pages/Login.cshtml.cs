@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Razor_EF.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using BC = BCrypt.Net.BCrypt;
 
 namespace Razor_EF.Pages
@@ -10,14 +14,18 @@ namespace Razor_EF.Pages
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<LoginModel> _logger;
+        private readonly IConfiguration _config;
 
         [BindProperty]
         public User User { get; set; } = new();
 
-        public LoginModel(ApplicationDbContext context, ILogger<LoginModel> logger)
+        public LoginModel(ApplicationDbContext context, 
+                            ILogger<LoginModel> logger,
+                            IConfiguration config)
         {
             _context = context;
             _logger = logger;
+            _config = config;
         }
 
         public void OnGet()
@@ -49,7 +57,40 @@ namespace Razor_EF.Pages
                     ModelState.AddModelError("User.UserName", "Пароль не верен !");
                     return Page();
                 }
-                _logger.LogInformation($"{User.ToString()} вошел в систему !");
+
+                // --- ГЕНЕРАЦИЯ JWT ТОКЕНА ---
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+
+                // Добавляем утверждения (Claims)
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.Name, user.UserName),
+                    new(ClaimTypes.Role, user.Role.ToString()), // Важно для проверки ролей
+                    new("UserId", user.Id.ToString())
+                };
+                _logger.LogInformation($"Claim с ролью {user.Role.ToString()} входит в систему !");
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddHours(1), // Время жизни токена
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                // Сохраняем токен в Cookie
+                Response.Cookies.Append("AccessToken", tokenString, new CookieOptions
+                {
+                    HttpOnly = true, // Защита от XSS
+                    Secure = true,  // Поставьте true, если используете HTTPS
+                    Expires = DateTime.UtcNow.AddHours(2),
+                    SameSite = SameSiteMode.Lax
+                });
+
+                _logger.LogInformation($"{user.ToString()} вошел в систему !");
                 return RedirectToPage("/Index");
             }
         }

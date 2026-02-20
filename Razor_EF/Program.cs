@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
+using System.Text;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,31 +51,59 @@ switch (Db)
         break;
 }
 
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            //// указывает, будет ли валидироваться издатель при валидации токена
-            //ValidateIssuer = true,
-            //// строка, представляющая издателя
-            //ValidIssuer = AuthOptions.ISSUER,
-            //// будет ли валидироваться потребитель токена
-            //ValidateAudience = true,
-            //// установка потребителя токена
-            //ValidAudience = AuthOptions.AUDIENCE,
-            //// будет ли валидироваться время существования
-            //ValidateLifetime = true,
-            //// установка ключа безопасности
-            //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-            //// валидация ключа безопасности
-            //ValidateIssuerSigningKey = true,
-        };
-    });
-
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// --- НАСТРОЙКА JWT ---
+var jwtKey = builder.Configuration["Jwt:Key"];
+var key = Encoding.UTF8.GetBytes(jwtKey!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; // Для разработки true в продакшене
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false, // Для упрощения примера
+        ValidateAudience = false,
+        // Используем стандартные типы Claim, которые заданы в LoginModel через ClaimTypes
+        NameClaimType = System.Security.Claims.ClaimTypes.Name,
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role
+    };
+
+    // 1. Читаем токен из Cookie, чтобы работали обычные формы Razor Pages
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["AccessToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        },
+        // 2. Если доступа нет, перенаправляем на Login, а не возвращаем 401
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            context.Response.Redirect("/Login");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    // Можно добавить политики, но для ролей достаточно атрибута
+});
 
 var app = builder.Build();
 

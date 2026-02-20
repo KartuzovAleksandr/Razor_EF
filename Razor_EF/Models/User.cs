@@ -29,7 +29,7 @@ namespace Razor_EF.Models
         public String Password { get; set; } = String.Empty;
 
         [Display(Name = "Роль")]
-        public Roles Role { get; set; } = Roles.User;
+        public Roles Role { get; set; }
 
         public override String ToString()
         {

@@ -6,7 +6,7 @@ using Razor_EF.Models;
 
 namespace Razor_EF.Pages
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ProductModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -16,7 +16,11 @@ namespace Razor_EF.Pages
         public IList<Product> Products { get; set; } = new List<Product>();
         [BindProperty] public Product Product { get; set; } = new();
 
-        public void OnGet() => Products = _context.Products.ToList();
+        public void OnGet()
+        {
+            Products = _context.Products.ToList();
+            // _logger.LogInformation($"User: {User.Identity.Name}, Roles: {string.Join(",", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))}");
+        } 
 
         public IActionResult OnPostCreate()
         {
