@@ -9,6 +9,12 @@
 
     <div class="row justify-content-center">
         <div class="col-md-6">
+            @if (!string.IsNullOrEmpty(Request.Query["error"]))
+            {
+                <div class="alert alert-danger text-center">Роль не подходит для доступа. 
+                    <br>Зайдите заново или обратитесь к администратору.
+                </div>
+            }
             <form method="post" asp-page-handler="Login">
                 <div asp-validation-summary="All" class="text-danger mb-3"></div>
 

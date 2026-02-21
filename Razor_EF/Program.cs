@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Razor_EF;
 using Razor_EF.Models;
@@ -81,6 +79,9 @@ builder.Services.AddAuthentication(options =>
     // 1. Читаем токен из Cookie, чтобы работали обычные формы Razor Pages
     options.Events = new JwtBearerEvents
     {
+        // Всегда вызывайте context.HandleResponse() и
+        // return Task.CompletedTask в конце,
+        // иначе возникнет ошибка "response has already started".
         OnMessageReceived = context =>
         {
             var token = context.Request.Cookies["AccessToken"];
@@ -94,7 +95,23 @@ builder.Services.AddAuthentication(options =>
         OnChallenge = context =>
         {
             context.HandleResponse();
+            // лог 
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning($"Доступ запрещён (401). Вы не вошли в систему !");
             context.Response.Redirect("/Login");
+            return Task.CompletedTask;
+        },
+        OnForbidden = context =>
+        {
+            // Нет нужды в HandleResponse() — OnForbidden вызывается
+            // до стандартного 403, и редирект прерывает пайплайн
+            // лог 
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning($"Доступ запрещён (403) для {context.Principal?.Identity?.Name}. " +
+                $"Роль не подходит.");
+            // 403: роль не подходит
+            context.Response.Redirect("/Login?error=role");
+            // Task.CompletedTask завершает обработчик корректно
             return Task.CompletedTask;
         }
     };
@@ -102,7 +119,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    // Можно добавить политики, но для ролей достаточно атрибута
+    // Можно добавить политики, но для ролей достаточно атрибута [Authorize]
 });
 
 var app = builder.Build();
@@ -114,19 +131,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// Инициализация БД при старте
-// убрал в Razor Pages для правильной обработки ошибки (отдельно для Development и Production)
-//using (var scope = app.Services.CreateScope())
-//{
-//    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//    context.Database.EnsureCreated(); // Создаём БД, если не существует
-
-//    if (!context.Clients.Any()) // Заполняем, если пусто
-//    {
-//        SeedData.Initialize(context);
-//    }
-//}
 
 // https://localhost:7151/Files/
 // даем каталог для скачивания / просмотра
@@ -185,6 +189,7 @@ app.UseHttpsRedirection();
 // app.UseDefaultFiles(); 
 
 // можно открывать файлы из wwwroot без указания полного пути
+// нужно также для стилей Bootstrap и JQuery
 app.UseStaticFiles(); 
 
 app.UseRouting();
