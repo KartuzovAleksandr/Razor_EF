@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Razor_EF.Models;
+using System.Security.Claims;
 
 namespace Razor_EF.Pages
 {
@@ -10,16 +11,25 @@ namespace Razor_EF.Pages
     public class ProductModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<ProductModel> _logger;
 
-        public ProductModel(ApplicationDbContext context) => _context = context;
+        public ProductModel(ApplicationDbContext context, ILogger<ProductModel> logger)
+        {
+            _context = context;
+            _logger = logger;
+        } 
 
         public IList<Product> Products { get; set; } = new List<Product>();
         [BindProperty] public Product Product { get; set; } = new();
 
         public void OnGet()
         {
-            Products = _context.Products.ToList();
-            // _logger.LogInformation($"User: {User.Identity.Name}, Roles: {string.Join(",", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))}");
+            // _context.Products.ToList()
+            Products = [.. _context.Products];
+            // покажем пользователя и роль
+            _logger.LogInformation($"Пользователь: {User.Identity.Name}, " +
+                $"Роль: {string.Join(",", User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}" +
+                $" вошел на страницу /Product");
         } 
 
         public IActionResult OnPostCreate()

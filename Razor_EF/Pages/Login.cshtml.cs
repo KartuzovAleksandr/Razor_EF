@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Razor_EF.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+// псевдоним, т.к. имена пакета и класса совпадают
 using BC = BCrypt.Net.BCrypt;
 
 namespace Razor_EF.Pages
@@ -50,8 +50,9 @@ namespace Razor_EF.Pages
             else
             {
                 // проверка введенного пароля
-                // user.Password - hash, User.Password - ввел пользователь
+                // user.Password - hash из БД, User.Password - ввел пользователь
                 if (!BC.Verify(User.Password, user.Password))
+                // простая проверка, когда пароль был в открытом виде 
                 // if (user.Password != User.Password)
                 {
                     ModelState.AddModelError("User.UserName", "Пароль не верен !");
@@ -86,7 +87,7 @@ namespace Razor_EF.Pages
                 {
                     HttpOnly = true, // Защита от XSS
                     Secure = true,  // Поставьте true, если используете HTTPS
-                    Expires = DateTime.UtcNow.AddHours(2),
+                    Expires = DateTime.UtcNow.AddHours(1),
                     SameSite = SameSiteMode.Lax
                 });
 

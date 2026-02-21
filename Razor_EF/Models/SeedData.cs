@@ -1,4 +1,5 @@
 ﻿using Bogus;
+// псевдоним,т.к. имя пакета и классов совпадают
 using BC = BCrypt.Net.BCrypt;
 
 namespace Razor_EF.Models
@@ -33,6 +34,7 @@ namespace Razor_EF.Models
             // Orders
             var orders = new Faker<Order>("ru")
                 // последние 30 дней
+                // UTC для PostgreSQL
                 .RuleFor(o => o.Date, f => DateTime.UtcNow.AddDays(-f.Random.Number(1, 30)))
                 // .RuleFor(o => o.Date, f => DateTime.Now.ToUniversalTime())
                 .RuleFor(o => o.ClientId, f => f.Random.Int(1, clients.Count))
@@ -45,13 +47,14 @@ namespace Razor_EF.Models
 
             var users = new List<User>
             { new() { UserName = "admin", 
-                Password =  BC.HashPassword("Passw0rd"), // шифрую (хэширую) пароль
+                // шифрую (хэширую) пароль
+                Password =  BC.HashPassword("Passw0rd"), 
                 Role = Roles.Admin },
               new() { UserName = "manager",
-                  Password =  BC.HashPassword("12345"), // шифрую (хэширую) пароль
+                  Password =  BC.HashPassword("12345"), 
                   Role = Roles.Manager },
               new() { UserName = "guest",
-                  Password =  BC.HashPassword("guest"), // шифрую (хэширую) пароль
+                  Password =  BC.HashPassword("guest"), 
                   Role = Roles.User }
             };
             context.Users.AddRange(users);

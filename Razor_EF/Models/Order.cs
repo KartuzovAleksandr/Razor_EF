@@ -10,6 +10,7 @@ namespace Razor_EF.Models
         [Display(Name = "Дата")]
         // для PostgreSQL
         //[Column(TypeName = "timestamp with time zone")]
+        // для SQL Server - ошибка поэтому убрано и везде руками приводим к UTC
         public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "Клиент обязателен")]

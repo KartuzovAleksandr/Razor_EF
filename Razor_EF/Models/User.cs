@@ -24,7 +24,8 @@ namespace Razor_EF.Models
         [StringLength(60, MinimumLength = 1, ErrorMessage = "Пароль должен быть от 1 до 10 символов")]
         // автоматически рендерится как <input type="password"> c tag-helpers
         [DataType(DataType.Password)]
-        // ВАЖНО: Для базы данных выделяем 60 символов под хэш
+        // Для базы данных выделяем 60 символов под хэш
+        // не проходит в Postgres - поэтому берется из правила валидации выше
         // [Column(TypeName = "text")]
         public String Password { get; set; } = String.Empty;
 

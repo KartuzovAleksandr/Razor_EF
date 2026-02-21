@@ -10,6 +10,7 @@ namespace Razor_EF.Pages
         }
         public IActionResult OnPost()
         {
+            // удаляем физически файл cookie
             Response.Cookies.Delete("AccessToken");
             return RedirectToPage("/Login");
         }

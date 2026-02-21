@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Razor_EF.Models;
+using System.Security.Claims;
 
 namespace Razor_EF.Pages
 {
+    [Authorize(Roles = "Admin,Manager")]
     public class ClientModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -23,6 +26,10 @@ namespace Razor_EF.Pages
         public void OnGet()
         {
             Clients = _context.Clients.ToList();
+            // покажем пользователя и роль
+            _logger.LogInformation($"Пользователь: {User.Identity.Name}, " +
+                $"Роль: {string.Join(",", User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value))}" +
+                $" вошел на страницу /Client");
         }
 
         public IActionResult OnPostCreate()
