@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
@@ -11,7 +12,40 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Swagger интерфейс https://localhost:7151/swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// builder.Services.AddSwaggerGen();
+// Swagger — только Admin
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// Тестирование(Postman / Swagger)
+// User: POST / PUT OK, GET/DELETE 403.
+// Manager: GET / POST / PUT OK, DELETE 403.
+// Admin: Всё OK.
+// Без токена: 401 на все.
+// Токен берется из /Login (cookie AccessToken) или
+// для доступа с других интерфейсов (React, PHP, Django, Mobile)
+// надо будет генерировать там вручную.
+// API вернёт JSON-ошибки (не редирект, как Razor Pages)
 
 // Настройка Serilog
 Log.Logger = new LoggerConfiguration()
@@ -107,7 +141,8 @@ builder.Services.AddAuthentication(options =>
             // до стандартного 403, и редирект прерывает пайплайн
             // лог 
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning($"Доступ запрещён (403) для {context.Principal?.Identity?.Name}. " +
+            logger.LogWarning($"Доступ запрещён (403) для пользователя " +
+                $"{context.Principal?.Identity?.Name}. " +
                 $"Роль не подходит.");
             // 403: роль не подходит
             context.Response.Redirect("/Login?error=role");
@@ -119,7 +154,11 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    // Можно добавить политики, но для ролей достаточно атрибута [Authorize]
+    // политики для API и Swagger,
+    // для страниц Razor и методов в них достаточно атрибута [Authorize]
+    options.AddPolicy("ManagerAdmin", policy => policy.RequireRole("Manager", "Admin"));
+    options.AddPolicy("UserAny", policy => policy.RequireRole("User", "Manager", "Admin"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
 
 var app = builder.Build();

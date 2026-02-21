@@ -1,7 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Configuration;
 using Razor_EF.Models;
 using System.ComponentModel.DataAnnotations;
+
+// REST API /api/orders уже использует настроенный JWT Bearer
+// (из Program.cs с cookie), поэтому защита простая:
+// добавляем [Authorize] на группу или отдельные endpoints
+
+// Политики из Program.cs
+// GET — Manager/Admin
+// DELETE — Admin
+// POST/PUT — User/Manager/Admin
 
 namespace Razor_EF;
 
@@ -13,23 +23,19 @@ public static class OrdersREST
 
         group.MapGet("/", async (ApplicationDbContext db) =>
         {
-            return await db.Orders
-                .Include(o => o.Client)
-                .Include(o => o.Product)
-                .ToListAsync();
-        });
+            return await db.Orders.Include(o => o.Client).
+                                   Include(o => o.Product).
+                                   ToListAsync();
+        }).RequireAuthorization("ManagerAdmin");
+        // добавил RequireAuthorization("ManagerAdmin"); 
 
         group.MapGet("/{id}", async (int id, ApplicationDbContext db) =>
         {
-            var order = await db.Orders
-                .Include(o => o.Client)
-                .Include(o => o.Product)
-                .FirstOrDefaultAsync(o => o.Id == id);
-
-            return order is null
-                ? Results.NotFound($"Order с ID {id} не найден.")
-                : Results.Ok(order);
-        });
+            var order = await db.Orders.Include(o => o.Client).
+                                        Include(o => o.Product).
+                                        FirstOrDefaultAsync(o => o.Id == id);
+            return order is null ? Results.NotFound($"Заказ {id} не найден.") : Results.Ok(order);
+        }).RequireAuthorization("ManagerAdmin");
 
         group.MapPost("/", async (CreateOrderDto dto, ApplicationDbContext db) =>
         {
@@ -57,7 +63,8 @@ public static class OrdersREST
             await db.SaveChangesAsync();
 
             return Results.Created($"/api/orders/{order.Id}", order);
-        });
+        }).RequireAuthorization("UserAny"); 
+        // добавил для любого пользователя 
 
         group.MapPut("/{id}", async (int id, UpdateOrderDto dto, ApplicationDbContext db) =>
         {
@@ -85,7 +92,7 @@ public static class OrdersREST
             await db.SaveChangesAsync();
 
             return Results.Ok(order);
-        });
+        }).RequireAuthorization("UserAny");
 
         group.MapDelete("/{id}", async (int id, ApplicationDbContext db) =>
         {
@@ -97,7 +104,8 @@ public static class OrdersREST
             await db.SaveChangesAsync();
 
             return Results.NoContent();
-        });
+        }).RequireAuthorization("AdminOnly");
+        // только админам
     }
 
     // Хелпер валидации, интегрируемый в любой endpoint
@@ -122,7 +130,7 @@ public static class OrdersREST
     }
 }
 
-// DTO остаются без изменений
+// DTO
 public class CreateOrderDto
 {
     public DateTime Date { get; set; } = DateTime.UtcNow;
