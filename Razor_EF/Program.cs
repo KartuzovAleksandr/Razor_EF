@@ -10,8 +10,10 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Swagger интерфейс https://localhost:7151/swagger
+// добавление Web API
 builder.Services.AddEndpointsApiExplorer();
+
+// Swagger интерфейс https://localhost:7151/swagger
 // builder.Services.AddSwaggerGen();
 // Swagger Ч только Admin
 builder.Services.AddSwaggerGen(c =>
