@@ -121,8 +121,10 @@ builder.Services.AddRazorPages();
 
 #region JwtToken
 // --- НАСТРОЙКА JWT ---
-var jwtKey = builder.Configuration["Jwt:Key"];
-var key = Encoding.UTF8.GetBytes(jwtKey!);
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+if (string.IsNullOrEmpty(jwtKey))
+    throw new InvalidOperationException("Jwt:Key не настроен в appsettings.json");
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
 {

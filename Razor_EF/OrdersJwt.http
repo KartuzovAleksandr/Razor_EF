@@ -4,6 +4,7 @@
 @token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZSI6IkFkbWluIiwiVXNlcklkIjoiMSIsIm5iZiI6MTc3MTg2NjczMywiZXhwIjoxNzcxODcwMzMzLCJpYXQiOjE3NzE4NjY3MzN9.Q35Tr2CHBzhRzKWuaczzrD3ehxkFniIuuEPm3WX2c9M
 
 ### 🔥 1. Получить JWT токен (Admin)
+# Разумеется никогда так не ставьте пароль если он не тестовый
 POST {{api}}/jwt
 Content-Type: application/json
 
