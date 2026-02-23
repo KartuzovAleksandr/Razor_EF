@@ -1,0 +1,55 @@
+@host = https://localhost:7151
+@api = {{host}}/api/orders
+# <-- JWT из браузера
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZSI6IkFkbWluIiwiVXNlcklkIjoiMSIsIm5iZiI6MTc3MTg2NjczMywiZXhwIjoxNzcxODcwMzMzLCJpYXQiOjE3NzE4NjY3MzN9.Q35Tr2CHBzhRzKWuaczzrD3ehxkFniIuuEPm3WX2c9M
+
+### 🔥 1. Получить JWT токен (Admin)
+POST {{api}}/jwt
+Content-Type: application/json
+
+{
+  "UserName": "admin",
+  "Password": "Passw0rd"
+}
+
+###
+# Скопируйте token из JSON ответа → вставьте в @token выше 
+# (Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...)
+
+### Получить все заказы (Manager/Admin)
+GET {{api}}
+Accept: application/json
+Authorization: {{token}}
+
+### Получить заказ по ID (Manager/Admin)
+GET {{api}}/2
+Accept: application/json
+Authorization: {{token}}
+
+### Создать заказ (User/Manager/Admin)
+POST {{api}}
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "date": "2025-10-29T12:00:00Z",
+  "clientId": 1,
+  "productId": 1,
+  "quantity": 2
+}
+
+### Обновить заказ (User/Manager/Admin)
+PUT {{api}}/1
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "date": "2025-10-30T10:00:00Z",
+  "clientId": 1,
+  "productId": 2,
+  "quantity": 5
+}
+
+### Удалить заказ (Admin)
+DELETE {{api}}/1
+Authorization: {{token}}

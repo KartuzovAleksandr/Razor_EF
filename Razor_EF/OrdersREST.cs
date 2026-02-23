@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using NuGet.Configuration;
 using Razor_EF.Models;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 // REST API /api/orders уже использует настроенный JWT Bearer
-// (из Program.cs с cookie), поэтому защита простая:
+// (из Program.cs с cookie), поэтому защита можно сделать и так:
 // добавляем [Authorize] на группу или отдельные endpoints
 
 // Политики из Program.cs
@@ -106,6 +110,49 @@ public static class OrdersREST
             return Results.NoContent();
         }).RequireAuthorization("AdminOnly");
         // только админам
+
+        // 🔥 Новый endpoint для API клиентов
+        group.MapPost("/jwt", async (LoginApiDto login, ApplicationDbContext db, IConfiguration config, ILogger<Program> logger) =>
+        {
+            // Поиск пользователя
+            var user = await db.Users.FirstOrDefaultAsync(u => u.UserName == login.UserName);
+            if (user == null)
+                return Results.BadRequest(new { error = "Пользователь не найден" });
+
+            // Проверка пароля (BCrypt как в LoginModel)
+            if (!BCrypt.Net.BCrypt.Verify(login.Password, user.Password))
+                return Results.BadRequest(new { error = "Неверный пароль" });
+
+            // Генерация JWT (точно как в LoginModel)
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(config["Jwt:Key"]!);
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.Name, user.UserName),
+                new(ClaimTypes.Role, user.Role.ToString()),
+                new("UserId", user.Id.ToString())
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            logger.LogInformation($"API JWT выдан для {user.UserName} ({user.Role})");
+
+            return Results.Ok(new
+            {
+                token = tokenString,
+                role = user.Role.ToString(),
+                expires = DateTime.UtcNow.AddHours(1)
+            });
+        }).AllowAnonymous();  // Доступ без авторизации
     }
 
     // Хелпер валидации, интегрируемый в любой endpoint
@@ -159,4 +206,11 @@ public class UpdateOrderDto
     [Required(ErrorMessage = "Количество обязательно")]
     [Range(1, 1000, ErrorMessage = "Количество от 1 до 1000")]
     public int Quantity { get; set; }
+}
+
+// Класс с именем-паролем для получения токена
+public class LoginApiDto
+{
+    public string UserName { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

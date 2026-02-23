@@ -1,21 +1,47 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+п»їusing Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
+using System.Net;
 using System.Text;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// добавление Web API
+// РґРѕР±Р°РІР»РµРЅРёРµ Web API
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger интерфейс https://localhost:7151/swagger
+#region Swagger
+// Swagger РёРЅС‚РµСЂС„РµР№СЃ https://localhost:7151/swagger
+
+// Р±РµР· Р°РІС‚РѕСЂРёР·Р°С†РёРё СЂР°Р±РѕС‚Р°РµС‚ Р±РµР· РїСЂРѕР±Р»РµРј
+// РµСЃР»Рё СѓР±РµСЂРµС‚Рµ РІРµР·РґРµ .RequireAuthorization("ManagerAdmin");
+// РёР· OrderREST.cs
+// Рё Р±СѓРґРµС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ Orders.http
 // builder.Services.AddSwaggerGen();
-// Swagger — только Admin
+
+// РљР°Рє РІР·СЏС‚СЊ С‚РѕРєРµРЅ РёР· Р±СЂР°СѓР·РµСЂР°
+// /Login в†’ Р»РѕРіРёРЅ (РЅР°РїСЂРёРјРµСЂ, Admin).
+// F12 в†’ Application/Storage в†’ Cookies в†’ http://localhost:7151 в†’ AccessToken (JWT)
+// РљРѕРїРёСЂСѓРµРј Р·РЅР°С‡РµРЅРёРµ РїРѕР»РЅРѕСЃС‚СЊСЋ (РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ eyJ...)
+// Р·Р°РїСѓСЃРєР°РµРј /swagger.
+// РљРЅРѕРїРєР° Authorize в†’ РІРІРµРґРёС‚Рµ Bearer [С‚РѕРєРµРЅ РёР· cookie].
+// С‚РµСЃС‚РёСЂСѓРµРј endpoints вЂ” СЂРѕР»Рё РїСЂРѕРІРµСЂСЏС‚СЃСЏ
+
+// РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ endpointds СЂСѓРєР°РјРё РёСЃРїРѕР»СЊР·СѓРµРј OprdersJwt.hhtp
+// РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С‚РѕРєРµРЅРѕРІ РµСЃС‚СЊ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ Р°РґСЂРµСЃ /api/orders/jwt
+// С‚Р°Рј РІРµСЂРЅРµС‚СЃСЏ json С„Р°Р№Р» С„РѕСЂРјР°С‚Р° 
+// {
+//  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+//  "role": "Admin",
+//  "expires": "2026-02-23T20:17:00Z"
+// }
+// СЌС‚РѕС‚ С‚РѕРєРµРЅ РїРѕС‚РѕРј РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ РІРЅРµС€РЅРёС… (React, РјРѕР±РёР»СЊРЅС‹С…) РїСЂРёР»РѕР¶РµРЅРёР№ 
+
+// Swagger вЂ” СЃ Р°РІС‚РѕСЂРёР·Р°С†РёРµР№ С‡РµСЂРµР· С‚РѕРєРµРЅ
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -39,17 +65,19 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Тестирование(Postman / Swagger)
+// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ(Postman / Swagger)
 // User: POST / PUT OK, GET/DELETE 403.
 // Manager: GET / POST / PUT OK, DELETE 403.
-// Admin: Всё OK.
-// Без токена: 401 на все.
-// Токен берется из /Login (cookie AccessToken) или
-// для доступа с других интерфейсов (React, PHP, Django, Mobile)
-// надо будет генерировать там вручную.
-// API вернёт JSON-ошибки (не редирект, как Razor Pages)
+// Admin: Р’СЃС‘ OK.
+// Р‘РµР· С‚РѕРєРµРЅР°: 401 РЅР° РІСЃРµ.
+// РўРѕРєРµРЅ Р±РµСЂРµС‚СЃСЏ РёР· /Login (cookie AccessToken) РёР»Рё РёР· /api/orders/jwt
+// РґР»СЏ РґРѕСЃС‚СѓРїР° СЃ РґСЂСѓРіРёС… РёРЅС‚РµСЂС„РµР№СЃРѕРІ (React, PHP, Django, Mobile)
+// API РІРµСЂРЅС‘С‚ JSON-РѕС€РёР±РєРё (РЅРµ СЂРµРґРёСЂРµРєС‚, РєР°Рє Razor Pages)
 
-// Настройка Serilog
+#endregion
+
+#region Serilog
+// РќР°СЃС‚СЂРѕР№РєР° Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File(
         Path.Combine(Directory.GetCurrentDirectory(), "Logs", "Razor_EF-.txt"),
@@ -57,10 +85,12 @@ Log.Logger = new LoggerConfiguration()
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 
-// Используем Serilog как основной провайдер логов
-builder.Host.UseSerilog(); // <-- это подключает Serilog к ILogger<T>
+// РСЃРїРѕР»СЊР·СѓРµРј Serilog РєР°Рє РѕСЃРЅРѕРІРЅРѕР№ РїСЂРѕРІР°Р№РґРµСЂ Р»РѕРіРѕРІ
+builder.Host.UseSerilog(); // <-- СЌС‚Рѕ РїРѕРґРєР»СЋС‡Р°РµС‚ Serilog Рє ILogger<T>
+#endregion
 
-// получаем строку подключения из файла конфигурации
+#region SwitchDB
+// РїРѕР»СѓС‡Р°РµРј СЃС‚СЂРѕРєСѓ РїРѕРґРєР»СЋС‡РµРЅРёСЏ РёР· С„Р°Р№Р»Р° РєРѕРЅС„РёРіСѓСЂР°С†РёРё
 // string? connection = builder.Configuration.GetConnectionString("MsDocker");
 string? con1 = builder.Configuration.GetConnectionString("SqlExpress");
 string? con2 = builder.Configuration.GetConnectionString("SQLite");
@@ -68,7 +98,7 @@ string? con3 = builder.Configuration.GetConnectionString("Postgres");
 
 string? Db = "SQLite";
 
-// добавляем контекст ApplicationContext в качестве сервиса в приложение
+// РґРѕР±Р°РІР»СЏРµРј РєРѕРЅС‚РµРєСЃС‚ ApplicationContext РІ РєР°С‡РµСЃС‚РІРµ СЃРµСЂРІРёСЃР° РІ РїСЂРёР»РѕР¶РµРЅРёРµ
 switch (Db)
 {
     case "Postgres":
@@ -84,11 +114,13 @@ switch (Db)
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
         break;
 }
+#endregion
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-// --- НАСТРОЙКА JWT ---
+#region JwtToken
+// --- РќРђРЎРўР РћР™РљРђ JWT ---
 var jwtKey = builder.Configuration["Jwt:Key"];
 var key = Encoding.UTF8.GetBytes(jwtKey!);
 
@@ -99,25 +131,25 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // Для разработки true в продакшене
+    options.RequireHttpsMetadata = false; // Р”Р»СЏ СЂР°Р·СЂР°Р±РѕС‚РєРё true РІ РїСЂРѕРґР°РєС€РµРЅРµ
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false, // Для упрощения примера
+        ValidateIssuer = false, // Р”Р»СЏ СѓРїСЂРѕС‰РµРЅРёСЏ РїСЂРёРјРµСЂР°
         ValidateAudience = false,
-        // Используем стандартные типы Claim, которые заданы в LoginModel через ClaimTypes
+        // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С‚РёРїС‹ Claim, РєРѕС‚РѕСЂС‹Рµ Р·Р°РґР°РЅС‹ РІ LoginModel С‡РµСЂРµР· ClaimTypes
         NameClaimType = System.Security.Claims.ClaimTypes.Name,
         RoleClaimType = System.Security.Claims.ClaimTypes.Role
     };
 
-    // 1. Читаем токен из Cookie, чтобы работали обычные формы Razor Pages
+    // 1. Р§РёС‚Р°РµРј С‚РѕРєРµРЅ РёР· Cookie, С‡С‚РѕР±С‹ СЂР°Р±РѕС‚Р°Р»Рё РѕР±С‹С‡РЅС‹Рµ С„РѕСЂРјС‹ Razor Pages
     options.Events = new JwtBearerEvents
     {
-        // Всегда вызывайте context.HandleResponse() и
-        // return Task.CompletedTask в конце,
-        // иначе возникнет ошибка "response has already started".
+        // Р’СЃРµРіРґР° РІС‹Р·С‹РІР°Р№С‚Рµ context.HandleResponse() Рё
+        // return Task.CompletedTask РІ РєРѕРЅС†Рµ,
+        // РёРЅР°С‡Рµ РІРѕР·РЅРёРєРЅРµС‚ РѕС€РёР±РєР° "response has already started".
         OnMessageReceived = context =>
         {
             var token = context.Request.Cookies["AccessToken"];
@@ -127,28 +159,28 @@ builder.Services.AddAuthentication(options =>
             }
             return Task.CompletedTask;
         },
-        // 2. Если доступа нет, перенаправляем на Login, а не возвращаем 401
+        // 2. Р•СЃР»Рё РґРѕСЃС‚СѓРїР° РЅРµС‚, РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј РЅР° Login, Р° РЅРµ РІРѕР·РІСЂР°С‰Р°РµРј 401
         OnChallenge = context =>
         {
             context.HandleResponse();
-            // лог 
+            // Р»РѕРі 
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning($"Доступ запрещён (401). Вы не вошли в систему !");
+            logger.LogWarning($"Р”РѕСЃС‚СѓРї Р·Р°РїСЂРµС‰С‘РЅ (401). Р’С‹ РЅРµ РІРѕС€Р»Рё РІ СЃРёСЃС‚РµРјСѓ !");
             context.Response.Redirect("/Login");
             return Task.CompletedTask;
         },
         OnForbidden = context =>
         {
-            // Нет нужды в HandleResponse() — OnForbidden вызывается
-            // до стандартного 403, и редирект прерывает пайплайн
-            // лог 
+            // РќРµС‚ РЅСѓР¶РґС‹ РІ HandleResponse() вЂ” OnForbidden РІС‹Р·С‹РІР°РµС‚СЃСЏ
+            // РґРѕ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ 403, Рё СЂРµРґРёСЂРµРєС‚ РїСЂРµСЂС‹РІР°РµС‚ РїР°Р№РїР»Р°Р№РЅ
+            // Р»РѕРі 
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning($"Доступ запрещён (403) для пользователя " +
+            logger.LogWarning($"Р”РѕСЃС‚СѓРї Р·Р°РїСЂРµС‰С‘РЅ (403) РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ " +
                 $"{context.Principal?.Identity?.Name}. " +
-                $"Роль не подходит.");
-            // 403: роль не подходит
+                $"Р РѕР»СЊ РЅРµ РїРѕРґС…РѕРґРёС‚.");
+            // 403: СЂРѕР»СЊ РЅРµ РїРѕРґС…РѕРґРёС‚
             context.Response.Redirect("/Login?error=role");
-            // Task.CompletedTask завершает обработчик корректно
+            // Task.CompletedTask Р·Р°РІРµСЂС€Р°РµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє РєРѕСЂСЂРµРєС‚РЅРѕ
             return Task.CompletedTask;
         }
     };
@@ -156,16 +188,17 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    // политики для API и Swagger,
-    // для страниц Razor и методов в них достаточно атрибута [Authorize]
+    // РїРѕР»РёС‚РёРєРё РґР»СЏ API Рё Swagger,
+    // РґР»СЏ СЃС‚СЂР°РЅРёС† Razor Рё РјРµС‚РѕРґРѕРІ РІ РЅРёС… РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р°С‚СЂРёР±СѓС‚Р° [Authorize]
     options.AddPolicy("ManagerAdmin", policy => policy.RequireRole("Manager", "Admin"));
     options.AddPolicy("UserAny", policy => policy.RequireRole("User", "Manager", "Admin"));
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
+#endregion
 
 var app = builder.Build();
 
-// включение Swagger в Development
+// РІРєР»СЋС‡РµРЅРёРµ Swagger РІ Development
 // https://localhost:7151/swagger
 if (app.Environment.IsDevelopment())
 {
@@ -174,8 +207,8 @@ if (app.Environment.IsDevelopment())
 }
 
 // https://localhost:7151/Files/
-// даем каталог для скачивания / просмотра
-// не будет работать в Docker - потому что доступ к физическому каталогу
+// РґР°РµРј РєР°С‚Р°Р»РѕРі РґР»СЏ СЃРєР°С‡РёРІР°РЅРёСЏ / РїСЂРѕСЃРјРѕС‚СЂР°
+// РЅРµ Р±СѓРґРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РІ Docker - РїРѕС‚РѕРјСѓ С‡С‚Рѕ РґРѕСЃС‚СѓРї Рє С„РёР·РёС‡РµСЃРєРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ
 //app.UseFileServer(new FileServerOptions
 //{
 //    EnableDirectoryBrowsing = true,
@@ -184,20 +217,20 @@ if (app.Environment.IsDevelopment())
 //    EnableDefaultFiles = false
 //});
 
-// меняем имя окружения
-// тогда увидим переадресацию на страницу Error
+// РјРµРЅСЏРµРј РёРјСЏ РѕРєСЂСѓР¶РµРЅРёСЏ
+// С‚РѕРіРґР° СѓРІРёРґРёРј РїРµСЂРµР°РґСЂРµСЃР°С†РёСЋ РЅР° СЃС‚СЂР°РЅРёС†Сѓ Error
 // app.Environment.EnvironmentName = "Production";
 
-// Настройка обработки ошибок на страницу Error (Razor)
-// проверка https://localhost:7151/TestError
+// РќР°СЃС‚СЂРѕР№РєР° РѕР±СЂР°Р±РѕС‚РєРё РѕС€РёР±РѕРє РЅР° СЃС‚СЂР°РЅРёС†Сѓ Error (Razor)
+// РїСЂРѕРІРµСЂРєР° https://localhost:7151/TestError
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // для обработки ошибок HTTP
+    // РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РѕС€РёР±РѕРє HTTP
     app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
     app.UseHsts();
 
-    // реальная защита от DDOS - не заработала
+    // СЂРµР°Р»СЊРЅР°СЏ Р·Р°С‰РёС‚Р° РѕС‚ DDOS - РЅРµ Р·Р°СЂР°Р±РѕС‚Р°Р»Р°
     //builder.Services.AddRateLimiter(options =>
     //{
     //    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
@@ -206,31 +239,31 @@ if (!app.Environment.IsDevelopment())
     //            factory: partition => new FixedWindowRateLimiterOptions
     //            {
     //                AutoReplenishment = true,
-    //                PermitLimit = 10,  // 10 запросов за окно
+    //                PermitLimit = 10,  // 10 Р·Р°РїСЂРѕСЃРѕРІ Р·Р° РѕРєРЅРѕ
     //                Window = TimeSpan.FromMinutes(1)
     //            }));
     //});
 
-    //// ДО MapRazorPages() - защита от DDOS
+    //// Р”Рћ MapRazorPages() - Р·Р°С‰РёС‚Р° РѕС‚ DDOS
     //app.UseRateLimiter();
 }
 else
 {
-    app.UseDeveloperExceptionPage(); // Для разработки — подробные ошибки
+    app.UseDeveloperExceptionPage(); // Р”Р»СЏ СЂР°Р·СЂР°Р±РѕС‚РєРё вЂ” РїРѕРґСЂРѕР±РЅС‹Рµ РѕС€РёР±РєРё
 }
 
 app.UseHttpsRedirection();
 
-// просмотр содержимое каталогов на сайте - которые укажем сами выше
-// в app.UseFileServer
+// РїСЂРѕСЃРјРѕС‚СЂ СЃРѕРґРµСЂР¶РёРјРѕРµ РєР°С‚Р°Р»РѕРіРѕРІ РЅР° СЃР°Р№С‚Рµ - РєРѕС‚РѕСЂС‹Рµ СѓРєР°Р¶РµРј СЃР°РјРё РІС‹С€Рµ
+// РІ app.UseFileServer
 // app.UseDirectoryBrowser(); 
 
-// переадресация на wwwroot
-// не использовать вместе с UseDirectoryBrower работать не будет
+// РїРµСЂРµР°РґСЂРµСЃР°С†РёСЏ РЅР° wwwroot
+// РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІРјРµСЃС‚Рµ СЃ UseDirectoryBrower СЂР°Р±РѕС‚Р°С‚СЊ РЅРµ Р±СѓРґРµС‚
 // app.UseDefaultFiles(); 
 
-// можно открывать файлы из wwwroot без указания полного пути
-// нужно также для стилей Bootstrap и JQuery
+// РјРѕР¶РЅРѕ РѕС‚РєСЂС‹РІР°С‚СЊ С„Р°Р№Р»С‹ РёР· wwwroot Р±РµР· СѓРєР°Р·Р°РЅРёСЏ РїРѕР»РЅРѕРіРѕ РїСѓС‚Рё
+// РЅСѓР¶РЅРѕ С‚Р°РєР¶Рµ РґР»СЏ СЃС‚РёР»РµР№ Bootstrap Рё JQuery
 app.UseStaticFiles(); 
 
 app.UseRouting();
@@ -240,10 +273,10 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-// добавить стандартный обработчик ошибок ASP.net Core
+// РґРѕР±Р°РІРёС‚СЊ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє РѕС€РёР±РѕРє ASP.net Core
 //app.UseDeveloperExceptionPage();
 
-// проверка стандартного обработчика
+// РїСЂРѕРІРµСЂРєР° СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РѕР±СЂР°Р±РѕС‚С‡РёРєР°
 //app.Run(async (context) =>
 //{
 //    int a = 5;
@@ -252,7 +285,7 @@ app.MapRazorPages();
 //    await context.Response.WriteAsync($"c = {c}");
 //});
 
-// Подключаем REST API для Orders
+// РџРѕРґРєР»СЋС‡Р°РµРј REST API РґР»СЏ Orders
 app.MapOrdersApi();
 
 app.Run();
