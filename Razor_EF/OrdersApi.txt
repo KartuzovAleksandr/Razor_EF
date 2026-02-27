@@ -1,0 +1,97 @@
+Проверить API в curl просто: сначала получите JWT через /api/orders/jwt, потом используйте Authorization: Bearer <token>.
+
+Полные команды curl
+1. Получить JWT токен (Admin)
+bash
+curl -X POST https://localhost:7151/api/orders/jwt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userName": "admin",
+    "password": "Passw0rd"
+  }' \
+  -v
+Ответ (200 OK):
+
+json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "role": "Admin",
+  "expires": "2026-02-27T14:21:00Z"
+}
+Скопируйте token в переменную:
+
+bash
+TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  # ← ваш токен
+
+_________________________________________________________________________________________________________________________________________________________________________________
+
+2. Тест API по ролям
+GET все заказы (Manager/Admin):
+
+bash
+curl -X GET https://localhost:7151/api/orders \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Accept: application/json" \
+  -v
+POST заказ (User/Manager/Admin):
+
+bash
+curl -X POST https://localhost:7151/api/orders \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "date": "2025-10-29T12:00:00Z",
+    "clientId": 1,
+    "productId": 1,
+    "quantity": 2
+  }' \
+  -v
+DELETE заказ (Admin):
+
+bash
+curl -X DELETE https://localhost:7151/api/orders/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -v
+Быстрый тест ролей
+bash
+# 1. User токен
+curl -X POST https://localhost:7151/api/orders/jwt \
+  -H "Content-Type: application/json" \
+  -d '{"userName":"user","password":"pass123"}' | jq .token | xargs -I {} curl -X GET https://localhost:7151/api/orders -H "Authorization: Bearer {}"
+
+# Ожидаемо: 403 Forbidden (User не может GET)
+
+_________________________________________________________________________________________________________________________________________________________________________________
+
+Скрипт test-api.sh (сохраните и запустите)
+bash
+#!/bin/bash
+HOST="https://localhost:7151"
+
+echo "=== 1. Admin JWT ==="
+ADMIN_TOKEN=$(curl -s -X POST $HOST/api/orders/jwt \
+  -H "Content-Type: application/json" \
+  -d '{"userName":"admin","password":"Passw0rd"}' | jq -r .token)
+
+echo "Admin Token: $ADMIN_TOKEN"
+
+echo "=== 2. GET Orders (Admin) ==="
+curl -s -w "Status: %{http_code}\n" -X GET $HOST/api/orders \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+echo "=== 3. POST Order (Admin) ==="
+curl -s -w "Status: %{http_code}\n" -X POST $HOST/api/orders \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"date":"2025-10-29T12:00:00Z","clientId":1,"productId":1,"quantity":2}'
+Запуск: chmod +x test-api.sh && ./test-api.sh
+
+jq (если нет): sudo apt install jq (Linux) / brew install jq (Mac).
+
+Статусы:
+
+✅ 200 — успех
+
+❌ 401 — нет токена
+
+❌ 403 — роль не подходит

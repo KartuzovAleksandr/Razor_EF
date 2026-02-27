@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Razor_EF/Razor_EF.db-shm
+/Razor_EF/Razor_EF.db-wal

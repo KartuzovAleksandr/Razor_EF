@@ -1,7 +1,7 @@
 @host = https://localhost:7151
 @api = {{host}}/api/orders
 # <-- JWT из браузера
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZSI6IkFkbWluIiwiVXNlcklkIjoiMSIsIm5iZiI6MTc3MTg2NjczMywiZXhwIjoxNzcxODcwMzMzLCJpYXQiOjE3NzE4NjY3MzN9.Q35Tr2CHBzhRzKWuaczzrD3ehxkFniIuuEPm3WX2c9M
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6Im1hbmFnZXIiLCJyb2xlIjoiTWFuYWdlciIsIlVzZXJJZCI6IjIiLCJuYmYiOjE3NzIwMzY3MjMsImV4cCI6MTc3MjA0MDMyMywiaWF0IjoxNzcyMDM2NzIzfQ.xozDpBjI8sqpLxUH3C3KHf_0VJgX_CClFiAfJQcnPqI
 
 ### 🔥 1. Получить JWT токен (Admin)
 # Разумеется никогда так не ставьте пароль если он не тестовый
@@ -9,8 +9,8 @@ POST {{api}}/jwt
 Content-Type: application/json
 
 {
-  "UserName": "admin",
-  "Password": "Passw0rd"
+  "UserName": "manager",
+  "Password": "12345"
 }
 
 ###
@@ -23,7 +23,7 @@ Accept: application/json
 Authorization: {{token}}
 
 ### Получить заказ по ID (Manager/Admin)
-GET {{api}}/2
+GET {{api}}/14
 Accept: application/json
 Authorization: {{token}}
 
@@ -52,5 +52,5 @@ Authorization: {{token}}
 }
 
 ### Удалить заказ (Admin)
-DELETE {{api}}/1
+DELETE {{api}}/15
 Authorization: {{token}}
