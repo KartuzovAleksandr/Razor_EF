@@ -1,7 +1,10 @@
 ﻿@using Razor_EF
 @namespace Razor_EF.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@* для использования паользователей и ролей *@
+@using System.Security.Claims  
 
+@* для валидации *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

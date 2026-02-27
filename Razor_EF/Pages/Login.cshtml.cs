@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
@@ -82,6 +84,7 @@ namespace Razor_EF.Pages
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
 
+                // 1) сохраняем JWT в cookie, чтобы JwtBearer мог его прочитать
                 // Сохраняем токен в Cookie
                 Response.Cookies.Append("AccessToken", tokenString, new CookieOptions
                 {
@@ -90,6 +93,11 @@ namespace Razor_EF.Pages
                     Expires = DateTime.UtcNow.AddHours(1),
                     SameSite = SameSiteMode.Lax
                 });
+
+                // 2) создаём ClaimsPrincipal, чтобы Razor Pages видели User
+                var identity = new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+                HttpContext.SignInAsync(JwtBearerDefaults.AuthenticationScheme, principal);
 
                 _logger.LogInformation($"{user.ToString()} вошел в систему !");
                 return RedirectToPage("/Index");
