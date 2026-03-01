@@ -90,28 +90,33 @@ builder.Host.UseSerilog(); // <-- это подключает Serilog к ILogger
 #endregion
 
 #region SwitchDB
-// получаем строку подключения из файла конфигурации
-// string? connection = builder.Configuration.GetConnectionString("MsDocker");
-string? con1 = builder.Configuration.GetConnectionString("SqlExpress");
-string? con2 = builder.Configuration.GetConnectionString("SQLite");
-string? con3 = builder.Configuration.GetConnectionString("Postgres");
-
-string? Db = "SQLite";
+// получаем провайдера БД
+string? DbProvider = builder.Configuration["DbProvider"];
+// логируем выбранный провайдер
+Log.Information($"*** Провайдер БД ***: {DbProvider}", DbProvider);
+// получаем все строки подключения из файла конфигурации
+string? con1 = builder.Configuration.GetConnectionString("SQLite");
+string? con2 = builder.Configuration.GetConnectionString("Postgres");
+string? con3 = builder.Configuration.GetConnectionString("SqlExpress");
+string? con4 = builder.Configuration.GetConnectionString("SqlDocker");
 
 // добавляем контекст ApplicationContext в качестве сервиса в приложение
-switch (Db)
+switch (DbProvider)
 {
-    case "Postgres":
-        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(con3));
-        break;
     case "SQLite":
-        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con1));
+        break;
+    case "Postgres":
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(con2));
         break;
     case "SqlExpress":
-        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con1));
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con3));
+        break;
+    case "SqlDocker":
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con4));
         break;
     default:
-        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con2));
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con1));
         break;
 }
 #endregion
