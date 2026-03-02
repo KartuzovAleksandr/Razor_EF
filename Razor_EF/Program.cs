@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 // добавление Web API
 builder.Services.AddEndpointsApiExplorer();
@@ -204,6 +206,8 @@ builder.Services.AddAuthorization(options =>
 #endregion
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // включение Swagger в Development
 // https://localhost:7151/swagger

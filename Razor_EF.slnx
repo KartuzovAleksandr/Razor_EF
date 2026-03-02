@@ -2,5 +2,7 @@
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
+  <Project Path="Razor_EF.AppHost/Razor_EF.AppHost.csproj" Id="52da5e37-9f33-495f-b0a4-f83423460d51" />
+  <Project Path="Razor_EF.ServiceDefaults/Razor_EF.ServiceDefaults.csproj" />
   <Project Path="Razor_EF/Razor_EF.csproj" />
 </Solution>
