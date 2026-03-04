@@ -7,6 +7,8 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# Копируем сертификат в образ
+COPY ["ASP_Docker.pfx", "/https/ASP_Docker.pfx"]
 
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -27,4 +29,6 @@ RUN dotnet publish "./Razor_EF.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# еще одно копирование в выходной каталог
+COPY --from=base /https/ASP_Docker.pfx /https/ASP_Docker.pfx
 ENTRYPOINT ["dotnet", "Razor_EF.dll"]
