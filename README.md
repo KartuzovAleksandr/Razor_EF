@@ -29,9 +29,14 @@ Tag Helpers, Html Helpers, [BindProperty]
 
 ## Страницы:
 
-Index — меню выбора таблиц
-CRUD для Clients/Orders/Products
-Error.cshtml (Production/Development)
+🏠 Index главное меню, выбор таблиц
+
+CRUD для 
+👥 Clients
+🛒 Orders
+📦 Products
+
+❌ Error (Production/Development)
 
 ## Безопасность:
 
