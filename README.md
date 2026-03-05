@@ -199,3 +199,4 @@ flowchart TD
     OrdersList -.->|Выбор Client | ClientsList
     OrdersList -.->|Выбор Product | ProductsList
 ```
+Для просмотра и редактирования https://mermaid.live/
