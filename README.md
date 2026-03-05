@@ -125,7 +125,7 @@ flowchart TD
     
     CheckAuth -- Нет --> LoginPage[🔐 Страница входа / Регистрация]:::auth
     LoginPage -->|Успех | Index
-    LoginPage -->|Ошибка валидации | LoginPage
+    LoginPage -->|"Ошибка валидации"| LoginPage
     LoginPage -->|Ошибка БД | ErrorPage
 
     CheckAuth -- Да --> Index[🏠 Index / Главное меню]:::main
@@ -143,9 +143,9 @@ flowchart TD
         ClientsList -->|Edit | ClientEdit[✏️ Редактирование]:::action
         ClientsList -->|Delete | ClientDelete[🗑️ Подтверждение удаления]:::action
         
-        ClientCreate -->|Save [BindProperty]| ClientsList
+        ClientCreate -->|"Save [BindProperty]"| ClientsList
         ClientCreate -->|Cancel | ClientsList
-        ClientCreate -->|Validation Error | ClientCreate
+        ClientCreate -->|"Validation Error"| ClientCreate
         
         ClientEdit -->|Save | ClientsList
         ClientEdit -->|Cancel | ClientsList
@@ -182,7 +182,7 @@ flowchart TD
 
     %% === API Flow ===
     API_Doc --> JwtGen[🔑 POST /api/orders/jwt]:::api
-    JwtGen -->|200 OK + Token | ApiTest[🧪 Тестирование в OrdersJwt.http]:::api
+    JwtGen -->|"200 OK + Token"| ApiTest[🧪 Тестирование в OrdersJwt.http]:::api
     ApiTest -->|Authorized | OrdersAPI[🛒 REST API: Orders]:::api
 
     %% === Обработка ошибок (Global) ===
