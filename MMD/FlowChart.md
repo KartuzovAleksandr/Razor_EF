@@ -1,0 +1,103 @@
+### Flowchart вариантов использования
+
+🔵 Синий: Авторизация (Login/Register)
+
+🟡 Желтый: Главная навигация (Index)
+
+🟢 Зеленый: CRUD списки (Entities)
+
+🟣 Фиолетовый: Действия (Create/Edit/Delete)
+
+🔴 Красный: Обработка ошибок
+
+🟦 Голубой: API и Swagger
+
+```mermaid
+flowchart TD
+    %% === Стили ===
+    classDef auth fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef main fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    classDef crud fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef action fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray: 5 5
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef api fill:#e0f7fa,stroke:#00838f,stroke-width:2px
+
+    %% === Точка входа и Авторизация ===
+    Start([Пользователь]) --> CheckAuth{Авторизован?}
+    
+    CheckAuth -- Нет --> LoginPage[🔐 Страница входа / Регистрация]:::auth
+    LoginPage -->|Успех | Index
+    LoginPage -->|"Ошибка валидации"| LoginPage
+    LoginPage -->|Ошибка БД | ErrorPage
+
+    CheckAuth -- Да --> Index[🏠 Index / Главное меню]:::main
+
+    %% === Навигация из меню ===
+    Index --> ClientsList[👥 Clients: Список]:::crud
+    Index --> OrdersList[🛒 Orders: Список]:::crud
+    Index --> ProductsList[📦 Products: Список]:::crud
+    Index -->|Logout | LoginPage
+    Index --> API_Doc[📄 Swagger UI /api]:::api
+
+    %% === CRUD: Clients ===
+    subgraph Clients_Flow [Clients CRUD]
+        ClientsList -->|Create | ClientCreate[➕ Создание клиента]:::action
+        ClientsList -->|Edit | ClientEdit[✏️ Редактирование]:::action
+        ClientsList -->|Delete | ClientDelete[🗑️ Подтверждение удаления]:::action
+        
+        ClientCreate -->|"Save [BindProperty]"| ClientsList
+        ClientCreate -->|Cancel | ClientsList
+        ClientCreate -->|"Validation Error"| ClientCreate
+        
+        ClientEdit -->|Save | ClientsList
+        ClientEdit -->|Cancel | ClientsList
+        
+        ClientDelete -->|Confirm | ClientsList
+        ClientDelete -->|Cancel | ClientsList
+    end
+
+    %% === CRUD: Orders ===
+    subgraph Orders_Flow [Orders CRUD]
+        OrdersList -->|Create | OrderCreate[➕ Новый заказ]:::action
+        OrdersList -->|Edit | OrderEdit[✏️ Изменить заказ]:::action
+        OrdersList -->|Delete | OrderDelete[🗑️ Удалить заказ]:::action
+        
+        OrderCreate -->|Save | OrdersList
+        OrderCreate -->|Cancel | OrdersList
+        
+        OrderEdit -->|Save | OrdersList
+        OrderEdit -->|Cancel | OrdersList
+        
+        OrderDelete -->|Confirm | OrdersList
+    end
+
+    %% === CRUD: Products ===
+    subgraph Products_Flow [Products CRUD]
+        ProductsList -->|Create | ProductCreate[➕ Добавить товар]:::action
+        ProductsList -->|Edit | ProductEdit[✏️ Редактировать товар]:::action
+        ProductsList -->|Delete | ProductDelete[🗑️ Удалить товар]:::action
+        
+        ProductCreate -->|Save | ProductsList
+        ProductEdit -->|Save | ProductsList
+        ProductDelete -->|Confirm | ProductsList
+    end
+
+    %% === API Flow ===
+    API_Doc --> JwtGen[🔑 POST /api/orders/jwt]:::api
+    JwtGen -->|"200 OK + Token"| ApiTest[🧪 Тестирование в OrdersJwt.http]:::api
+    ApiTest -->|Authorized | OrdersAPI[🛒 REST API: Orders]:::api
+
+    %% === Обработка ошибок (Global) ===
+    Index -.->|Exception | ErrorPage[❌ Error Page]:::error
+    ClientsList -.->|Exception | ErrorPage
+    OrdersList -.->|Exception | ErrorPage
+    ProductsList -.->|Exception | ErrorPage
+    LoginPage -.->|Exception | ErrorPage
+    
+    ErrorPage -->|Home | Index
+    ErrorPage -->|Login | LoginPage
+
+    %% === Связи данных (опционально) ===
+    OrdersList -.->|Выбор Client | ClientsList
+    OrdersList -.->|Выбор Product | ProductsList
+```

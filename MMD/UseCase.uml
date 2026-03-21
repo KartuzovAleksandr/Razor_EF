@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+actor Visitor
+actor User
+actor Admin
+actor Manager
+
+Visitor --> (View Catalog) : просматривает
+Visitor --> (Register) : регистрируется
+Visitor --> (Login) : входит в систему
+
+(User) --> (Create Order) : создает/участвует
+(User) --> (Track Order) : отслеживает
+
+Admin --> (Manage Products) : товары
+Admin --> (Edit Product) : редактирует
+
+Manager --> (Manage Orders) : отвечает
+
+(Register) ..> (Create Order) : <<include>>
+(Login) ..> (Create Order) : <<include>>
+
+@enduml
