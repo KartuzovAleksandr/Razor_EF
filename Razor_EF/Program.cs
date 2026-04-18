@@ -5,8 +5,8 @@ using Microsoft.OpenApi.Models;
 using Razor_EF;
 using Razor_EF.Models;
 using Serilog;
-using System.Net;
 using System.Text;
+using System.Net;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -101,6 +101,7 @@ string? con1 = builder.Configuration.GetConnectionString("SQLite");
 string? con2 = builder.Configuration.GetConnectionString("Postgres");
 string? con3 = builder.Configuration.GetConnectionString("SqlExpress");
 string? con4 = builder.Configuration.GetConnectionString("SqlDocker");
+string? con5 = builder.Configuration.GetConnectionString("MySQL");
 
 // добавляем контекст ApplicationContext в качестве сервиса в приложение
 switch (DbProvider)
@@ -116,6 +117,10 @@ switch (DbProvider)
         break;
     case "SqlDocker":
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(con4));
+        break;
+    case "MySQL":
+        var serverVersion = ServerVersion.AutoDetect(con5);
+        builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(con5, serverVersion));
         break;
     default:
         builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(con1));
