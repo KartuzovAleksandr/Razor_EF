@@ -35,7 +35,12 @@
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Products[0].Id)</th>
+                        @* с помощью Tag-helpers *@
+                        @* <th asp-for="Product.Id"></th>
+                        <th asp-for="Product.Name"></th>
+                        <th asp-for="Product.Price"></th> *@
+                        @* с помощью Html-helpers *@
+                        <th>@Html.DisplayNameFor(m => m.Products[0].Id)</th> 
                         <th>@Html.DisplayNameFor(m => m.Products[0].Name)</th>
                         <th>@Html.DisplayNameFor(m => m.Products[0].Price)</th>
                         <th>Действия</th>

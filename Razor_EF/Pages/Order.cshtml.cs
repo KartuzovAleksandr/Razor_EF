@@ -20,7 +20,7 @@ namespace Razor_EF.Pages
         public void OnGet()
         {
             Orders = _context.Orders
-                .Include(o => o.Client)
+                .Include(o => o.Client)   // select ... where Orders.ClientId = Clients.ClientId
                 .Include(o => o.Product)
                 .ToList();
             Clients = _context.Clients.ToList();
