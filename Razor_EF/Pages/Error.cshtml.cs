@@ -51,7 +51,7 @@ public class ErrorModel : PageModel
         if (statusCodeFeature != null)
         {
             StatusCode = int.Parse(HttpContext.Request.Query["statusCode"]);
-            _logger.LogWarning("Статус-код {StatusCode} для пути {OriginalPath}", StatusCode, statusCodeFeature.OriginalPath);
+            _logger.LogError("Статус-код {StatusCode} для пути {OriginalPath}", StatusCode, statusCodeFeature.OriginalPath);
 
             ShortErrorInfo = StatusCode switch
             {
@@ -67,7 +67,7 @@ public class ErrorModel : PageModel
 
     private string GetFriendlySqlMessage(SqlException sqlEx)
     {
-        _logger.LogInformation($"Ошибка при работе с SQL Server {sqlEx.Number}");
+        _logger.LogError($"Ошибка при работе с SQL Server {sqlEx.Number}");
         // Можно кастомизировать сообщение в зависимости от кода ошибки SQL
         return sqlEx.Number switch
         {
@@ -80,6 +80,7 @@ public class ErrorModel : PageModel
 
     private string GetFriendlySockMessage(SocketException socketEx)
     {
+        _logger.LogError($"Ошибка при работе с сокетами {socketEx.ErrorCode}");
         // Можно кастомизировать сообщение в зависимости от кода ошибки
         return socketEx.ErrorCode switch
         {
