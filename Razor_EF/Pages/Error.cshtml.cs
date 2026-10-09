@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
+// для обработки статус-кодов HHTP
+using Microsoft.AspNetCore.Http.Features; 
 using Microsoft.AspNetCore.Mvc.RazorPages;
 // для обработки ошибок SQL Server
 using Microsoft.Data.SqlClient; 
 using System.Diagnostics;
 using System.Net.Sockets;
-// для обработки статус-кодов HHTP
-using Microsoft.AspNetCore.Http.Features; 
 
 public class ErrorModel : PageModel
 {
@@ -67,10 +67,11 @@ public class ErrorModel : PageModel
 
     private string GetFriendlySqlMessage(SqlException sqlEx)
     {
+        _logger.LogInformation($"Ошибка при работе с SQL Server {sqlEx.Number}");
         // Можно кастомизировать сообщение в зависимости от кода ошибки SQL
         return sqlEx.Number switch
         {
-            53 => "Не удалось подключиться к серверу базы данных. Проверьте доступность SQL Server.",
+            2 => "Не удалось подключиться к серверу базы данных. Проверьте доступность SQL Server.",
             4060 => "Ошибка доступа к базе данных. Проверьте параметры подключения.",
             18456 => "Ошибка авторизации в SQL Server.",
             _ => "Ошибка при работе с базой данных."
